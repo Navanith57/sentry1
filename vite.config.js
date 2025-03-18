@@ -1,21 +1,16 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
-
-  return {
-    plugins: [
-      sentryVitePlugin({
-        org: env.VITE_SENTRY_ORG,
-        project: env.VITE_SENTRY_PROJECT,
-        release: { name: env.VITE_RELEASE },
-        authToken: env.VITE_SENTRY_AUTH,
-        sourcemaps: {
-          assets: "./**", // Upload all source maps
-          ignore: ["./node_modules/**", "vite.config.js"], // Ignore dependencies and config file
-        }
-      }),
-    ],
-  };
+export default defineConfig({
+  build: {
+    sourcemap: true, // Source map generation must be turned on
+  },
+  plugins: [
+    // Put the Sentry vite plugin after all other plugins
+    sentryVitePlugin({
+      authToken: process.env.SENTRY_AUTH,
+      org: "frontend-rl",
+      project: "sentry-indepth",
+    }),
+  ],
 });

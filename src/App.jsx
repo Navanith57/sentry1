@@ -31,16 +31,17 @@ const Login = ({ setUser }) => {
 const Home = ({ user }) => {
   useEffect(() => {
     if (!user) return;
-
+  
     if (user.hasCrash) {
-      Sentry.captureEvent({
-        message: `App crash for ${user.name}`,
-        level: "error",
-      });
+      try {
+        throw new Error(`App crash for ${user.name}`);
+      } catch (error) {
+        Sentry.captureException(error);
+      }
     } else {
       const requestPayload = { userId: user.id };
-
-      fetch("https://jsonplaceholder.typicode.com/posts/1", {
+  
+      fetch("https://jsonplaceholder.typicode.com/poss/1", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +51,7 @@ const Home = ({ user }) => {
       })
         .then(async (response) => {
           const responseData = await response.json();
-
+  
           if (!response.ok) {
             Sentry.captureEvent({
               message: `API error for ${user.name}`,
@@ -81,6 +82,7 @@ const Home = ({ user }) => {
         });
     }
   }, [user]);
+
 
   return (
     <div>
